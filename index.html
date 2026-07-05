@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KCFL Ground Inspection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pitch-900:#0f3324; --pitch-800:#153d2b; --pitch-700:#1f4d36; --pitch-600:#2b6644;
+  --turf-500:#4c8c4a; --turf-400:#6aab5f;
+  --chalk-50:#f7f5f0; --chalk-100:#eeece3; --chalk-200:#e2ded1;
+  --ink-900:#161611; --ink-600:#4a4a42; --ink-400:#7a796d;
+  --amber-500:#e8a33d; --amber-100:#fbead0;
+  --red-600:#b23a48; --red-100:#f6dde0;
+  --green-600:#2e7d4f; --green-100:#deefe2;
+  --grey-300:#c9c7ba; --grey-100:#f0efe9;
+  --radius:10px;
+  --shadow:0 1px 2px rgba(15,51,36,.08), 0 4px 14px rgba(15,51,36,.06);
+  --font-display:'Oswald',sans-serif; --font-body:'Inter',sans-serif; --font-mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:var(--font-body);background:var(--chalk-50);color:var(--ink-900);}
+h1,h2,h3,.display{font-family:var(--font-display);text-transform:uppercase;letter-spacing:.02em;}
+button{font-family:var(--font-body);cursor:pointer;}
+input,select,textarea{font-family:var(--font-body);}
+#app{min-height:100vh;display:flex;flex-direction:column;}
+.topbar{background:var(--pitch-800);color:var(--chalk-50);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:50;box-shadow:var(--shadow);}
+.topbar .brand{display:flex;align-items:center;gap:10px;min-width:0;}
+.topbar .crest{width:32px;height:32px;border-radius:50%;background:var(--turf-500);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--pitch-900);flex-shrink:0;}
+.topbar h1{font-size:16px;margin:0;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.topbar .sub{font-size:11px;color:var(--turf-400);text-transform:none;letter-spacing:0;font-family:var(--font-body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.topbar .actions{display:flex;gap:6px;flex-shrink:0;}
+.topbar button.icon-btn{background:transparent;border:1px solid rgba(255,255,255,.3);color:var(--chalk-50);padding:6px 10px;border-radius:8px;font-size:12px;}
+.topbar button.ghost{background:transparent;color:var(--chalk-50);border:1px solid rgba(255,255,255,.3);padding:6px 10px;border-radius:8px;}
+main{flex:1;max-width:980px;width:100%;margin:0 auto;padding:16px;padding-bottom:90px;}
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:14px;}
+.insp-list-item{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px solid var(--chalk-200);gap:10px;cursor:pointer;}
+.insp-list-item:last-child{border-bottom:none;}
+.insp-main{min-width:0;}
+.insp-main .club{font-weight:600;font-size:15px;}
+.insp-main .meta{font-size:12.5px;color:var(--ink-400);margin-top:2px;}
+.tier-badges{display:flex;gap:4px;flex-shrink:0;}
+.tier-badge{font-size:10px;font-weight:700;padding:3px 6px;border-radius:5px;text-transform:uppercase;}
+.tier-badge.tb-pass{background:var(--green-100);color:var(--green-600);}
+.tier-badge.tb-fail{background:var(--red-100);color:var(--red-600);}
+.tier-badge.tb-mitigation{background:var(--amber-100);color:#8a5a10;}
+.tier-badge.tb-none{background:var(--grey-100);color:var(--ink-400);}
+.status-pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;}
+.status-draft{background:var(--grey-100);color:var(--ink-600);}
+.status-submitted{background:var(--amber-100);color:#8a5a10;}
+.status-approved{background:var(--green-100);color:var(--green-600);}
+.empty-state{text-align:center;padding:40px 20px;color:var(--ink-400);}
+.big-btn{width:100%;background:var(--pitch-700);color:#fff;border:none;padding:16px;border-radius:var(--radius);font-family:var(--font-display);font-size:16px;letter-spacing:.03em;text-transform:uppercase;font-weight:600;box-shadow:var(--shadow);}
+.scoreboard{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.score-card{background:var(--pitch-900);color:var(--chalk-50);border-radius:var(--radius);padding:10px 10px 12px;}
+.score-card .tier{font-family:var(--font-display);font-size:12px;letter-spacing:.05em;color:var(--turf-400);text-transform:uppercase;}
+.score-card .overall{font-family:var(--font-mono);font-weight:600;font-size:13px;margin:4px 0 8px;}
+.score-row{display:flex;justify-content:space-between;font-size:11px;font-family:var(--font-mono);color:var(--chalk-200);padding:1px 0;}
+.overall-pass{color:#8fe0ac;} .overall-mitigation{color:var(--amber-500);} .overall-fail{color:#f0909c;}
+.section-nav{display:flex;overflow-x:auto;gap:6px;padding:2px 0 12px;margin-bottom:6px;-webkit-overflow-scrolling:touch;}
+.section-nav button{flex-shrink:0;background:#fff;border:1px solid var(--chalk-200);color:var(--ink-600);padding:8px 13px;border-radius:20px;font-size:12.5px;font-weight:500;white-space:nowrap;}
+.section-nav button.active{background:var(--pitch-700);color:#fff;border-color:var(--pitch-700);}
+.section-nav button.done::after{content:' \2713';color:var(--turf-400);}
+.section-nav button.active.done::after{color:#8fe0ac;}
+.section-title{font-size:19px;margin:4px 0 14px;color:var(--pitch-800);}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--ink-900);margin-bottom:5px;}
+.field .hint{font-size:11.5px;color:var(--ink-400);font-weight:400;display:block;margin-top:2px;}
+.field input[type=text],.field input[type=number],.field input[type=date],.field select,.field textarea{
+  width:100%;padding:10px 11px;border:1.5px solid var(--chalk-200);border-radius:8px;font-size:14.5px;background:#fff;color:var(--ink-900);
+}
+.field textarea{min-height:64px;resize:vertical;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--turf-500);}
+.field-row{display:flex;gap:10px;}
+.field-row .field{flex:1;}
+.yn-toggle{display:flex;gap:8px;}
+.yn-toggle button{flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--chalk-200);background:#fff;font-weight:600;font-size:13.5px;color:var(--ink-600);}
+.yn-toggle button.sel-yes{background:var(--green-100);border-color:var(--green-600);color:var(--green-600);}
+.yn-toggle button.sel-no{background:var(--red-100);border-color:var(--red-600);color:var(--red-600);}
+.clause-card{border:1.5px solid var(--chalk-200);border-radius:var(--radius);padding:14px;margin-bottom:16px;background:var(--chalk-50);}
+.clause-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.clause-id{font-family:var(--font-mono);font-size:11px;color:var(--ink-400);}
+.clause-title{font-weight:700;font-size:14.5px;color:var(--pitch-800);}
+.clause-req{font-size:12px;color:var(--ink-600);margin-top:3px;line-height:1.4;}
+.grade-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.grade-badge{font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:.02em;}
+.grade-pass{background:var(--green-100);color:var(--green-600);}
+.grade-fail{background:var(--red-100);color:var(--red-600);}
+.grade-mitigation{background:var(--amber-100);color:#8a5a10;}
+.grade-na{background:var(--grey-100);color:var(--ink-400);}
+.mitigation-box{margin-top:10px;background:var(--amber-100);border-radius:8px;padding:10px;}
+.mitigation-box label{font-size:11.5px;color:#8a5a10;}
+.mitigation-box .due-row{display:flex;gap:8px;align-items:center;margin-top:6px;}
+.mitigation-box .due-row input{padding:6px 8px;border-radius:6px;border:1px solid var(--grey-300);font-size:12.5px;}
+.advisory-box{margin-top:10px;background:#e4ecf7;border-radius:8px;padding:10px;font-size:12.5px;color:#2b5aa0;}
+.override-btn{font-size:10.5px;background:none;border:none;color:var(--ink-400);text-decoration:underline;padding:0;}
+.override-panel{margin-top:10px;background:#fff;border:1px dashed var(--grey-300);border-radius:8px;padding:10px;}
+.footer-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--chalk-200);padding:10px 16px;display:flex;gap:10px;justify-content:center;box-shadow:0 -2px 10px rgba(0,0,0,.06);z-index:40;}
+.footer-bar button{flex:1;max-width:220px;padding:12px;border-radius:8px;font-weight:600;font-size:13.5px;border:none;}
+.btn-primary{background:var(--pitch-700);color:#fff;}
+.btn-secondary{background:var(--chalk-100);color:var(--ink-900);}
+.summary-table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0;}
+.summary-table th,.summary-table td{border:1px solid var(--chalk-200);padding:7px 9px;text-align:left;}
+.summary-table th{background:var(--chalk-100);font-family:var(--font-display);font-size:11px;letter-spacing:.03em;text-transform:uppercase;}
+.summary-table td.num{text-align:center;font-family:var(--font-mono);}
+.assessment-tag{font-weight:700;padding:4px 8px;border-radius:6px;font-size:11.5px;}
+.notice-item{border:1px solid var(--chalk-200);border-radius:8px;padding:10px;margin-bottom:8px;}
+.notice-item .clause{font-weight:700;font-size:13px;}
+.notice-item .text{font-size:13px;margin:4px 0;}
+.notice-item .row{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--ink-400);flex-wrap:wrap;}
+.notice-item input[type=date]{padding:5px 7px;border-radius:6px;border:1px solid var(--grey-300);}
+.print-report{background:#fff;padding:18px;border-radius:var(--radius);box-shadow:var(--shadow);}
+.print-report h2{color:var(--pitch-800);font-size:20px;}
+.kv-table{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:16px;}
+.kv-table td{border:1px solid var(--chalk-200);padding:7px 9px;vertical-align:top;}
+.kv-table td.k{font-weight:600;width:38%;background:var(--chalk-50);}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--pitch-900);color:#fff;padding:9px 16px;border-radius:20px;font-size:12.5px;z-index:100;opacity:0;transition:opacity .25s;pointer-events:none;}
+.toast.show{opacity:1;}
+.sync-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;}
+.sync-ok{background:#8fe0ac;} .sync-pending{background:var(--amber-500);} .sync-off{background:var(--grey-300);}
+.setup-wrap{max-width:440px;margin:60px auto;padding:20px;}
+@media print{
+  .topbar,.footer-bar,.section-nav,.no-print{display:none !important;}
+  main{max-width:100%;padding:0;}
+  body{background:#fff;}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================================
+   CONFIG (per-device: which Google Sheet backend to talk to)
+   ========================================================================= */
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbzld0MOmjw-kdnn6LXx636d-74okFk7SpOHNxTX01XysMZ_46Bdjju6qUXvMd492qnyQw/exec';
+function getConfig(){
+  try{
+    const raw = localStorage.getItem('kcfl-config');
+    const cfg = raw ? JSON.parse(raw) : null;
+    if(!cfg || !cfg.secret) return null;
+    return { apiUrl: DEFAULT_API_URL, secret: cfg.secret };
+  }catch(e){ return null; }
+}
+function setConfig(cfg){ localStorage.setItem('kcfl-config', JSON.stringify({secret: cfg.secret})); }
+
+/* =========================================================================
+   API — talks to the Google Apps Script backend
+   ========================================================================= */
+const Api = {
+  async call(action, payload){
+    const cfg = getConfig();
+    if(!cfg || !cfg.apiUrl) throw new Error('Not configured');
+    const body = JSON.stringify(Object.assign({action, secret:cfg.secret||''}, payload||{}));
+    const res = await fetch(cfg.apiUrl, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    if(data && data.error) throw new Error(data.error);
+    return data;
+  },
+  listGrounds(){ return this.call('listGrounds'); },
+  saveGround(record){ return this.call('saveGround', {record}); },
+  listInspections(groundId){ return this.call('listInspections', groundId?{groundId}:{}); },
+  getInspection(id){ return this.call('getInspection', {id}); },
+  saveInspection(record){ return this.call('saveInspection', {record}); },
+  listNotices(){ return this.call('listNotices'); },
+  saveNotice(record){ return this.call('saveNotice', {record}); }
+};
+
+/* =========================================================================
+   LOCAL CACHE (offline-first: every change saves here immediately;
+   background sync pushes to Sheets and clears the dirty flag on success)
+   ========================================================================= */
+const Local = {
+  get(key){ try{ const r = localStorage.getItem(key); return r?JSON.parse(r):null; }catch(e){ return null; } },
+  set(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){ console.error(e); } },
+  index(name){ return this.get('idx:'+name) || []; },
+  setIndex(name, arr){ this.set('idx:'+name, arr); },
+};
+
+function uid(prefix){ return (prefix||'id')+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1800); }
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtDate(d){ if(!d) return '\u2014'; try{ return new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}catch(e){return d;} }
+
+/* =========================================================================
+   GROUND & INSPECTION STORE — local-first, background sync to Sheets
+   ========================================================================= */
+const Store = {
+  async listGrounds(){
+    let idx = Local.index('grounds');
+    try{
+      const remote = await Api.listGrounds();
+      const dirtyIds = new Set(idx.filter(g=>g._dirty).map(g=>g.id));
+      const merged = remote.filter(g=>!dirtyIds.has(g.id));
+      const dirtyLocal = idx.filter(g=>dirtyIds.has(g.id));
+      idx = [...dirtyLocal, ...merged];
+      Local.setIndex('grounds', idx);
+      SYNC_STATE.online = true;
+    }catch(e){ SYNC_STATE.online = false; console.warn('listGrounds offline', e); }
+    return idx.sort((a,b)=> (b.updatedAt||0)-(a.updatedAt||0));
+  },
+  async saveGround(ground){
+    ground.updatedAt = Date.now();
+    ground._dirty = true;
+    let idx = Local.index('grounds');
+    const i = idx.findIndex(g=>g.id===ground.id);
+    if(i>=0) idx[i]=ground; else idx.unshift(ground);
+    Local.setIndex('grounds', idx);
+    try{
+      await Api.saveGround(stripLocal(ground));
+      ground._dirty = false;
+      idx = Local.index('grounds'); const j = idx.findIndex(g=>g.id===ground.id); if(j>=0){ idx[j]=ground; Local.setIndex('grounds', idx); }
+      SYNC_STATE.online = true;
+    }catch(e){ SYNC_STATE.online = false; console.warn('saveGround offline, queued', e); }
+    return ground;
+  },
+  async getGround(id){
+    const idx = Local.index('grounds');
+    return idx.find(g=>g.id===id) || null;
+  },
+  async listInspections(groundId){
+    let idx = Local.index('inspections').filter(i=>i.groundId===groundId);
+    try{
+      const remote = await Api.listInspections(groundId);
+      const remoteParsed = remote.map(parseInspectionRecord);
+      const dirtyIds = new Set(idx.filter(i=>i._dirty).map(i=>i.id));
+      const merged = remoteParsed.filter(i=>!dirtyIds.has(i.id));
+      const dirtyLocal = idx.filter(i=>dirtyIds.has(i.id));
+      const all = Local.index('inspections').filter(i=>i.groundId!==groundId);
+      Local.setIndex('inspections', [...all, ...dirtyLocal, ...merged]);
+      idx = [...dirtyLocal, ...merged];
+      SYNC_STATE.online = true;
+    }catch(e){ SYNC_STATE.online = false; console.warn('listInspections offline', e); }
+    return idx.sort((a,b)=> (b.updatedAt||0)-(a.updatedAt||0));
+  },
+  async listAllSubmitted(){
+    let all = [];
+    try{
+      const remote = await Api.listInspections();
+      all = remote.map(parseInspectionRecord);
+      SYNC_STATE.online = true;
+    }catch(e){
+      SYNC_STATE.online = false;
+      all = Local.index('inspections');
+    }
+    return all.filter(i=>i.status==='submitted');
+  },
+  async getInspection(id){
+    const idx = Local.index('inspections');
+    let insp = idx.find(i=>i.id===id);
+    if(insp) return insp;
+    try{ const remote = await Api.getInspection(id); if(remote) return parseInspectionRecord(remote); }catch(e){}
+    return null;
+  },
+  async saveInspection(insp){
+    insp.updatedAt = Date.now();
+    insp._dirty = true;
+    let idx = Local.index('inspections');
+    const i = idx.findIndex(x=>x.id===insp.id);
+    if(i>=0) idx[i]=insp; else idx.unshift(insp);
+    Local.setIndex('inspections', idx);
+    try{
+      await Api.saveInspection(serializeInspectionRecord(insp));
+      insp._dirty = false;
+      idx = Local.index('inspections'); const j = idx.findIndex(x=>x.id===insp.id); if(j>=0){ idx[j]=insp; Local.setIndex('inspections', idx); }
+      SYNC_STATE.online = true;
+    }catch(e){ SYNC_STATE.online = false; console.warn('saveInspection offline, queued', e); }
+    return insp;
+  },
+  async listNotices(){
+    let idx = Local.index('notices');
+    try{
+      const remote = await Api.listNotices();
+      const dirtyIds = new Set(idx.filter(n=>n._dirty).map(n=>n.id));
+      const merged = remote.filter(n=>!dirtyIds.has(n.id));
+      const dirtyLocal = idx.filter(n=>dirtyIds.has(n.id));
+      idx = [...dirtyLocal, ...merged];
+      Local.setIndex('notices', idx);
+      SYNC_STATE.online = true;
+    }catch(e){ SYNC_STATE.online = false; console.warn('listNotices offline', e); }
+    return idx;
+  },
+  async saveNotice(notice){
+    notice._dirty = true;
+    let idx = Local.index('notices');
+    const i = idx.findIndex(n=>n.id===notice.id);
+    if(i>=0) idx[i]=notice; else idx.unshift(notice);
+    Local.setIndex('notices', idx);
+    try{
+      await Api.saveNotice(stripLocal(notice));
+      notice._dirty = false;
+      idx = Local.index('notices'); const j = idx.findIndex(n=>n.id===notice.id); if(j>=0){ idx[j]=notice; Local.setIndex('notices', idx); }
+      SYNC_STATE.online = true;
+    }catch(e){ SYNC_STATE.online = false; console.warn('saveNotice offline, queued', e); }
+    return notice;
+  },
+  async syncAllDirty(){
+    let count = 0;
+    for(const key of ['grounds','inspections','notices']){
+      const idx = Local.index(key);
+      for(const rec of idx){
+        if(rec._dirty){
+          try{
+            if(key==='grounds') await Api.saveGround(stripLocal(rec));
+            if(key==='inspections') await Api.saveInspection(serializeInspectionRecord(rec));
+            if(key==='notices') await Api.saveNotice(stripLocal(rec));
+            rec._dirty = false;
+            count++;
+          }catch(e){ console.warn('sync failed for', key, rec.id, e); }
+        }
+      }
+      Local.setIndex(key, idx);
+    }
+    return count;
+  }
+};
+
+const SYNC_STATE = { online: true };
+
+function stripLocal(rec){
+  const copy = Object.assign({}, rec);
+  delete copy._dirty;
+  return copy;
+}
+function serializeInspectionRecord(insp){
+  return {
+    id: insp.id, groundId: insp.groundId, visitDate: insp.facts.visitDate||'',
+    inspector1: insp.facts.inspector1||'', inspector1Email: insp.facts.inspector1Email||'',
+    inspector2: insp.facts.inspector2||'', status: insp.status,
+    factsJson: JSON.stringify({facts:insp.facts, overrides:insp.overrides||{}}),
+    gradesJson: '', summaryJson: '',
+    submittedAt: insp.submittedAt||'', approvedAt: insp.approvedAt||'', approvedBy: insp.approvedBy||''
+  };
+}
+function parseInspectionRecord(rec){
+  let facts = {}, overrides = {};
+  try{ const parsed = JSON.parse(rec.factsJson||'{}'); facts = parsed.facts||{}; overrides = parsed.overrides||{}; }catch(e){}
+  return {
+    id: rec.id, groundId: rec.groundId, status: rec.status||'draft',
+    facts, overrides,
+    submittedAt: rec.submittedAt, approvedAt: rec.approvedAt, approvedBy: rec.approvedBy,
+    updatedAt: rec.updatedAt || Date.now(), _dirty:false
+  };
+}
+
+/* =========================================================================
+   GRADING ENGINE
+   ========================================================================= */
+const TIERS = ['prem','nonprem','vets'];
+const TIER_LABEL = {prem:'Premier', nonprem:'Non-Prem', vets:'Vets'};
+function uniform(val){ return {prem:val,nonprem:val,vets:val}; }
+
+const CLAUSES = {
+'1.1': {
+  title:'Security of Tenure', category:'judged',
+  req:'Ground must be secured for a minimum of one season. Written evidence required.',
+  grade(f){
+    if(f.tenureSecured!=='yes') return uniform('fail');
+    if(f.tenureEvidence==='yes') return uniform('pass');
+    return {...uniform('mitigation'), mitigationNote:'Club to provide written confirmation of tenure by [date].'};
+  }
+},
+'1.2': {
+  title:'Ground Share', category:'judged',
+  req:'Ground sharing subject to league approval. Club must have sole control and use of facilities on match days.',
+  grade(f){
+    if(f.groundShares!=='yes') return uniform('na');
+    return uniform(f.groundShareSoleControl==='yes' ? 'pass' : 'fail');
+  }
+},
+'1.5': {
+  title:'Clubhouse', category:'judged',
+  req:'Prem/Non-Prem: not required, but must be open matchday if it exists. Vets: clubhouse or equivalent required.',
+  grade(f){
+    let pn;
+    if(f.clubhouseExists!=='yes') pn='na';
+    else pn = f.clubhouseOpenMatchday==='yes' ? 'pass' : 'fail';
+    let vets;
+    if(f.clubhouseExists==='yes') vets='pass';
+    else vets = f.clubhouseOffsiteAlt==='yes' ? 'mitigation' : 'fail';
+    const out = {prem:pn, nonprem:pn, vets};
+    if(vets==='mitigation') out.mitigationNote = 'Hospitality provided via off-site alternative: ' + (f.clubhouseOffsiteAltDetails||'[details]');
+    return out;
+  }
+},
+'1.6': {
+  title:'Car Parking', category:'judged',
+  req:'Minimum 20 spaces on or adjacent to the ground, all tiers.',
+  grade(f){ const n=parseFloat(f.parkingSpaces); return uniform(isNaN(n)?'fail':(n>=20?'pass':'fail')); }
+},
+'1.7': {
+  title:'Pitch Perimeter Barrier', category:'judged',
+  req:'Prem: permanent barrier around the full perimeter. Non-Prem/Vets: respect barrier on spectator side(s) only.',
+  grade(f){
+    let prem;
+    if(f.barrierType==='none' || f.barrierFullPerimeter!=='yes') prem='fail';
+    else if(f.barrierType==='permanent') prem='pass';
+    else prem='mitigation';
+    const other = f.barrierType==='none' ? 'fail' : 'pass';
+    const out = {prem, nonprem:other, vets:other};
+    if(prem==='mitigation') out.mitigationNote = 'Temporary barrier in place; transition plan to permanent agreed with league.';
+    return out;
+  }
+},
+'1.9': {
+  title:'Playing Area', category:'judged',
+  req:'Prem: 100m x 64m. Non-Prem/Vets: minimum 91m x 55m.',
+  grade(f){
+    const l=parseFloat(f.pitch1Length), w=parseFloat(f.pitch1Width);
+    const prem = (!isNaN(l)&&!isNaN(w)&&l>=100&&w>=64) ? 'pass':'fail';
+    const other = (!isNaN(l)&&!isNaN(w)&&l>=91&&w>=55) ? 'pass':'fail';
+    const out = {prem, nonprem:other, vets:other};
+    if(other==='pass' && f.pitchCanReach10064!=='yes'){
+      out.advisories = [{tier:'nonprem', text:'Ground cannot achieve Premier Division pitch-size standard (100m x 64m).'}];
+    }
+    return out;
+  }
+},
+'1.10': {
+  title:'Technical Area', category:'judged',
+  req:'Technical area marked out with dugouts/trainers\u2019 boxes in place (fixed or portable).',
+  grade(f){
+    let g;
+    if(f.techAreaMarked!=='yes' && f.techAreaDugouts!=='yes') g='fail';
+    else if(f.techAreaMarked==='yes' && f.techAreaDugouts==='yes') g='pass';
+    else g='mitigation';
+    const out = uniform(g);
+    if(g==='mitigation') out.mitigationNote = 'Temporary dugouts to be provided for all matchdays going forward.';
+    return out;
+  }
+},
+'1.11': {
+  title:'Safe Walkway', category:'judged', tiersApplicable:['prem'],
+  req:'Premier only: unimpeded passage for players/officials to pitch, or stewarding where spectator contact possible.',
+  grade(f){
+    const prem = (f.walkwayClear==='yes' || f.walkwayStewarding==='yes') ? 'pass' : 'fail';
+    return {prem, nonprem:'na', vets:'na'};
+  }
+},
+'2.3': {
+  title:'Changing Room Toilets Shared with Spectators', category:'judged',
+  req:'If changing-room toilets are shared with spectators: Fail for Prem/Non-Prem. Vets unaffected.',
+  grade(f){
+    const shared = f.toiletsSharedSpectators==='yes';
+    return { prem: shared?'fail':'pass', nonprem: shared?'fail':'pass', vets:'pass' };
+  }
+},
+'3.1': {
+  title:'Players Changing Rooms \u2014 Size', category:'judged',
+  req:'Minimum 12 sqm each (excl. shower/toilet), all tiers.',
+  grade(f){
+    const h=parseFloat(f.homeRoomArea), a=parseFloat(f.awayRoomArea);
+    const ok = !isNaN(h)&&h>=12&&!isNaN(a)&&a>=12;
+    return uniform(ok ? 'pass':'fail');
+  }
+},
+'3.1.1': {
+  title:'Showers', category:'judged',
+  req:'Prem: 3 heads/team, not shared. Non-Prem: 3/team, or 6+ shared. Vets: 2/team, or 4+ shared.',
+  grade(f){
+    const shared = f.showersShared==='yes';
+    const h=parseFloat(f.homeShowerHeads)||0, a=parseFloat(f.awayShowerHeads)||0;
+    const sharedTotal = parseFloat(f.sharedShowerHeads)||0;
+    const prem = (!shared && h>=3 && a>=3) ? 'pass':'fail';
+    const nonprem = ((!shared && h>=3 && a>=3) || (shared && sharedTotal>=6)) ? 'pass':'fail';
+    const vets = ((!shared && h>=2 && a>=2) || (shared && sharedTotal>=4)) ? 'pass':'fail';
+    return {prem,nonprem,vets};
+  }
+},
+'3.1.2': {
+  title:'Toilets (Changing Rooms)', category:'judged',
+  req:'1 WC+sink per room (or 2 if shared). Lockable door required (mitigable).',
+  grade(f){
+    const shared = f.toiletsShared==='yes';
+    const h=parseFloat(f.homeWC)||0, a=parseFloat(f.awayWC)||0;
+    const sharedWC = parseFloat(f.sharedWC)||0;
+    const countOk = (!shared && h>=1 && a>=1) || (shared && sharedWC>=2);
+    const doorOk = f.toiletsLockable==='yes';
+    const g = !countOk ? 'fail' : (doorOk ? 'pass':'mitigation');
+    const out = uniform(g);
+    if(g==='mitigation') out.mitigationNote = 'Lockable door to be fitted/repaired by [date].';
+    return out;
+  }
+},
+'3.2': {
+  title:'Hot & Cold Water', category:'judged',
+  req:'Hot and cold running water with soap in changing-room toilets, all tiers.',
+  grade(f){ return uniform(f.hotColdWaterChanging==='yes' ? 'pass':'fail'); }
+},
+'3.3size': {
+  title:'Match Officials \u2014 Room Size & Seating', category:'judged',
+  req:'Minimum 4 sqm (excl. shower/toilet), seating for 3 officials, all tiers.',
+  grade(f){ const area=parseFloat(f.officialsRoomArea); const ok=!isNaN(area)&&area>=4&&f.officialsSeating3==='yes'; return uniform(ok?'pass':'fail'); }
+},
+'3.3sanitary': {
+  title:'Match Officials \u2014 WC / Basin / Hot & Cold', category:'judged',
+  req:'Adequate WC, hand basin and hot & cold water, all tiers.',
+  grade(f){ const wc=parseFloat(f.officialsWC)||0, basin=parseFloat(f.officialsBasin)||0; const ok=wc>=1&&basin>=1&&f.officialsHotCold==='yes'; return uniform(ok?'pass':'fail'); }
+},
+'3.3shower': {
+  title:'Match Officials \u2014 Shower', category:'judged',
+  req:'Prem: own enclosure, 1+ head. Non-Prem/Vets: may share if not accessed via players\u2019 rooms.',
+  grade(f){
+    const heads=parseFloat(f.officialsShowerHeads)||0, shared=f.officialsShowerShared==='yes', viaPlayers=f.officialsShowerViaPlayers==='yes';
+    const prem = (!shared && heads>=1) ? 'pass':'fail';
+    const other = (heads>=1 && (!shared || !viaPlayers)) ? 'pass':'fail';
+    return {prem, nonprem:other, vets:other};
+  }
+},
+'3.3mf': {
+  title:'Match Officials \u2014 Female/Youth Provision', category:'judged',
+  req:'Separate changing facilities for female/youth officials should be provided.',
+  grade(f){
+    let g;
+    if(f.officialsFemaleYouthSeparate==='yes') g='pass';
+    else g = f.officialsFemaleYouthDetails ? 'mitigation' : 'fail';
+    const out = uniform(g);
+    if(g==='mitigation') out.mitigationNote = f.officialsFemaleYouthDetails;
+    return out;
+  }
+}
+};
+
+const SECTIONS = [
+{ id:'general', title:'Club & Ground Details', fields:[
+  {k:'clubName', label:'Club', type:'text'},
+  {k:'groundName', label:'Ground Name', type:'text'},
+  {k:'streetAddress', label:'Street Address', type:'text'},
+  {k:'cityTown', label:'City / Town', type:'text'},
+  {k:'county', label:'County', type:'text'},
+  {k:'postcode', label:'Postcode', type:'text'},
+  {k:'groundOwnerDetails', label:'Ground Owner & Details of Freehold/Leasehold', type:'textarea'},
+  {k:'visitDate', label:'Date of Visit', type:'date'},
+  {k:'clubRep', label:'Club Representative Present', type:'text'},
+  {k:'inspector1', label:'KCL Inspector 1', type:'text'},
+  {k:'inspector1Email', label:'Inspector 1 Email', type:'text'},
+  {k:'inspector2', label:'KCL Inspector 2', type:'text'},
+  {k:'inspector2Email', label:'Inspector 2 Email', type:'text'},
+  {k:'background', label:'Background to Inspection', type:'textarea'},
+]},
+{ id:'tenure', title:'Tenure & Ground Share', fields:[
+  {k:'tenureSecured', label:'Does the club have season-long tenure secured?', type:'yn'},
+  {k:'tenureEvidence', label:'Written evidence of tenure provided at inspection?', type:'yn', showIf:f=>f.tenureSecured==='yes'},
+  {clause:'1.1'},
+  {k:'groundShares', label:'Is the ground shared with another club?', type:'yn'},
+  {k:'groundShareDetails', label:'Groundshare Details', type:'textarea', showIf:f=>f.groundShares==='yes'},
+  {k:'groundShareSoleControl', label:'Does the club have sole control & use of facilities on match days?', type:'yn', showIf:f=>f.groundShares==='yes'},
+  {clause:'1.2'},
+  {k:'groundUsedCricket', label:'Ground used for cricket in summer?', type:'yn'},
+]},
+{ id:'access', title:'Boundary, Parking & Access', fields:[
+  {k:'groundCapacity', label:'Approximate Ground Capacity', type:'text'},
+  {k:'boundaryDetails', label:'Boundary of Ground', type:'textarea'},
+  {k:'clubhouseExists', label:'Is there a clubhouse?', type:'yn'},
+  {k:'clubhouseOpenMatchday', label:'Is it open on matchdays?', type:'yn', showIf:f=>f.clubhouseExists==='yes'},
+  {k:'clubhouseOffsiteAlt', label:'(Vets) Off-site alternative used for hospitality (e.g. local pub)?', type:'yn', showIf:f=>f.clubhouseExists!=='yes'},
+  {k:'clubhouseOffsiteAltDetails', label:'Off-site alternative details', type:'text', showIf:f=>f.clubhouseOffsiteAlt==='yes'},
+  {clause:'1.5'},
+  {k:'parkingSpaces', label:'Approximate Car Park Capacity', type:'number', unit:'spaces'},
+  {k:'parkingDetails', label:'Details & Location of Car Parking', type:'textarea'},
+  {clause:'1.6'},
+]},
+{ id:'pitch1', title:'Pitch 1', fields:[
+  {k:'pitch1Surface', label:'Playing Surface', type:'select', options:['Grass','Artificial Grass Pitch (AGP)']},
+  {k:'pitch2Exists', label:'Is there a 2nd pitch?', type:'yn'},
+  {k:'barrierType', label:'Pitch 1 Perimeter Barrier Type', type:'select', options:[['none','None'],['temporary','Temporary'],['permanent','Permanent']]},
+  {k:'barrierFullPerimeter', label:'Does the barrier run the FULL perimeter of the pitch?', type:'yn'},
+  {k:'barrierDetails', label:'Perimeter Barrier Details & Comments', type:'textarea'},
+  {clause:'1.7'},
+  {k:'pitch1SurfaceFree', label:'Free from surface depressions / excessive undulations?', type:'yn'},
+  {k:'pitch1Length', label:'Length of Pitch 1', type:'number', unit:'m'},
+  {k:'pitch1Width', label:'Width of Pitch 1', type:'number', unit:'m'},
+  {k:'pitchCanReach10064', label:'(if undersized) Could the ground reach 100m x 64m, possibly elsewhere with evidence of tenure?', type:'yn'},
+  {clause:'1.9'},
+  {k:'techAreaMarked', label:'Is a technical area marked out?', type:'yn'},
+  {k:'techAreaDugouts', label:'Are dugouts / trainer boxes in place?', type:'yn'},
+  {clause:'1.10'},
+  {k:'dugoutCapacityHome', label:'Capacity of Home Dugout', type:'number'},
+  {k:'dugoutCapacityAway', label:'Capacity of Away Dugout', type:'number'},
+  {k:'pitch1Comments', label:'General Comments on Pitch 1', type:'textarea'},
+  {k:'walkwayClear', label:'(Prem) Unimpeded passage for players/officials to pitch?', type:'yn'},
+  {k:'walkwayStewarding', label:'(Prem) Stewarding provided where spectator contact possible?', type:'yn'},
+  {k:'walkwayMitigationNote', label:'Walkway \u2014 mitigation / notes (free text)', type:'textarea'},
+  {clause:'1.11'},
+]},
+{ id:'pitch2', title:'Pitch 2 (if applicable)', showIf:f=>f.pitch2Exists==='yes', fields:[
+  {k:'pitch2Surface', label:'Playing Surface', type:'select', options:['Grass','Artificial Grass Pitch (AGP)']},
+  {k:'pitch2BarrierType', label:'Pitch 2 Perimeter Barrier Type', type:'select', options:[['none','None'],['temporary','Temporary'],['permanent','Permanent']]},
+  {k:'pitch2BarrierDetails', label:'Perimeter Barrier Details & Comments', type:'textarea'},
+  {k:'pitch2SurfaceFree', label:'Free from surface depressions / excessive undulations?', type:'yn'},
+  {k:'pitch2Length', label:'Length of Pitch 2', type:'number', unit:'m'},
+  {k:'pitch2Width', label:'Width of Pitch 2', type:'number', unit:'m'},
+  {k:'pitch2TechArea', label:'Marked with a compliant technical area?', type:'yn'},
+  {k:'pitch2DugoutHome', label:'Capacity of Home Dugout', type:'number'},
+  {k:'pitch2DugoutAway', label:'Capacity of Away Dugout', type:'number'},
+  {k:'pitch2Comments', label:'General Comments on Pitch 2', type:'textarea'},
+  {k:'constraintsTo10064', label:'Constraints to making pitch 100m x 64m', type:'textarea'},
+]},
+{ id:'ground-features', title:'Floodlighting, Access & Spectator Areas', fields:[
+  {k:'floodlightsProvided', label:'Floodlights provided?', type:'yn'},
+  {k:'floodlightingDetails', label:'Floodlighting Details', type:'textarea'},
+  {k:'paSystem', label:'Public Address System', type:'textarea'},
+  {k:'emergencyAccess', label:'Is there safe emergency access?', type:'yn'},
+  {k:'accessDetails', label:'Details of Entrance, Exit & Emergency Access', type:'textarea'},
+  {k:'hardstandingDetails', label:'Details of Pitchside Hardstandings', type:'textarea'},
+  {k:'standsExist', label:'Are there any stands or terraces?', type:'yn'},
+  {k:'standsDetails', label:'Details of Stands / Terracing', type:'textarea', showIf:f=>f.standsExist==='yes'},
+  {k:'standingCapacity', label:'Standing Capacity (covered)', type:'number'},
+  {k:'seatingCapacity', label:'Seating Capacity (covered)', type:'number'},
+  {k:'spectatorToiletsExist', label:'Are there spectator toilets?', type:'yn'},
+  {k:'spectatorToiletsDetails', label:'Spectator Toilets \u2014 Details', type:'textarea', showIf:f=>f.spectatorToiletsExist==='yes'},
+  {k:'refreshmentsDetails', label:'Refreshment Facilities', type:'textarea'},
+]},
+{ id:'changing-shared', title:'Changing Rooms \u2014 Shared Facilities', fields:[
+  {k:'showersShared', label:'Are showers shared between home and away teams?', type:'yn'},
+  {k:'sharedShowerHeads', label:'Total shared shower heads', type:'number', showIf:f=>f.showersShared==='yes'},
+  {k:'toiletsShared', label:'Are toilets shared between home and away teams?', type:'yn'},
+  {k:'sharedWC', label:"Total shared WC's", type:'number', showIf:f=>f.toiletsShared==='yes'},
+  {k:'toiletsSharedSpectators', label:'Are changing room toilets shared with spectators?', type:'yn'},
+  {clause:'2.3'},
+  {k:'toiletsLockable', label:'WC(s) separated from changing area by a lockable door?', type:'yn'},
+  {k:'hotColdWaterChanging', label:'Hot & cold running water + soap in changing-room toilets?', type:'yn'},
+  {clause:'3.2'},
+]},
+{ id:'home-changing', title:'Home Team Changing Room', fields:[
+  {k:'homeRoomDetails', label:'Home Changing Room \u2014 Details', type:'textarea'},
+  {k:'homeRoomArea', label:'Home Changing Room Area', type:'number', unit:'sqm'},
+  {k:'homeSecure', label:'Is the home changing room secure?', type:'yn'},
+  {k:'homeWC', label:"No. of WC's (home)", type:'number', showIf:f=>f.toiletsShared!=='yes'},
+  {k:'homeUrinals', label:'No. of urinals (home)', type:'number', showIf:f=>f.toiletsShared!=='yes'},
+  {k:'homeBasins', label:'No. of hand basins (home)', type:'number'},
+  {k:'homeShowerHeads', label:'No. of shower heads (home)', type:'number', showIf:f=>f.showersShared!=='yes'},
+]},
+{ id:'away-changing', title:'Away Team Changing Room', fields:[
+  {k:'awayRoomDetails', label:'Away Changing Room \u2014 Details', type:'textarea'},
+  {k:'awayRoomArea', label:'Away Changing Room Area', type:'number', unit:'sqm'},
+  {k:'awaySecure', label:'Is the away changing room secure?', type:'yn'},
+  {k:'awayWC', label:"No. of WC's (away)", type:'number', showIf:f=>f.toiletsShared!=='yes'},
+  {k:'awayUrinals', label:'No. of urinals (away)', type:'number', showIf:f=>f.toiletsShared!=='yes'},
+  {k:'awayBasins', label:'No. of hand basins (away)', type:'number'},
+  {k:'awayShowerHeads', label:'No. of shower heads (away)', type:'number', showIf:f=>f.showersShared!=='yes'},
+  {clause:'3.1'},
+  {clause:'3.1.1'},
+  {clause:'3.1.2'},
+]},
+{ id:'officials', title:"Match Officials' Facilities", fields:[
+  {k:'officialsRoomDetails', label:'Officials Changing Room \u2014 Details', type:'textarea'},
+  {k:'officialsRoomArea', label:'Officials Room Area', type:'number', unit:'sqm'},
+  {k:'officialsSeating3', label:'Seating/benches for 3 officials?', type:'yn'},
+  {clause:'3.3size'},
+  {k:'officialsSecure', label:'Is the officials room secure?', type:'yn'},
+  {k:'officialsWC', label:"No. of WC's", type:'number'},
+  {k:'officialsUrinal', label:'No. of urinals', type:'number'},
+  {k:'officialsBasin', label:'No. of hand basins', type:'number'},
+  {k:'officialsHotCold', label:'Hot & cold running water?', type:'yn'},
+  {clause:'3.3sanitary'},
+  {k:'officialsShowerHeads', label:'No. of shower heads', type:'number'},
+  {k:'officialsShowerShared', label:'Shared with another room?', type:'yn'},
+  {k:'officialsShowerViaPlayers', label:'Accessed via players\u2019 changing rooms?', type:'yn', showIf:f=>f.officialsShowerShared==='yes'},
+  {clause:'3.3shower'},
+  {k:'officialsFemaleYouthSeparate', label:'Separate changing facilities for female/youth officials provided?', type:'yn'},
+  {k:'officialsFemaleYouthDetails', label:'Details of provision for female/youth officials', type:'textarea', showIf:f=>f.officialsFemaleYouthSeparate!=='yes'},
+  {clause:'3.3mf'},
+  {k:'officialsCleanSecure', label:'Kept to a high standard of cleanliness & secure on matchdays?', type:'yn'},
+]},
+{ id:'medical', title:'Medical & Safety', fields:[
+  {k:'medicalSafetyDetails', label:'Medical & Safety Equipment Details', type:'textarea', hint:'First aid room, EAP, stretcher, other equipment and general comments.'},
+  {k:'defibAvailable', label:'Defib available?', type:'yn'},
+  {k:'defibLocation', label:'Location of defib', type:'text', showIf:f=>f.defibAvailable==='yes'},
+]},
+{ id:'summary', title:'Inspector Summary', fields:[
+  {k:'complianceLevel', label:'Compliance Level Adjudged by Inspector', type:'select', options:['Pass','Pass subject to improvements/mitigations','Fail']},
+  {k:'suggestedImprovements', label:'Suggested Improvements & Reasons for Non-Compliance', type:'textarea'},
+  {k:'overallSummary', label:'Overall Summary (for report)', type:'textarea'},
+]},
+];
+
+function computeGrades(facts, overrides){
+  overrides = overrides || {};
+  const results = {};
+  for(const cid in CLAUSES){
+    let g = CLAUSES[cid].grade(facts);
+    if(overrides[cid]){ g = Object.assign({}, g, overrides[cid].tiers); g._overridden=true; g._overrideReason=overrides[cid].reason; }
+    results[cid] = g;
+  }
+  return results;
+}
+function summarise(grades){
+  const summary = {};
+  for(const tier of TIERS){
+    let na=0,pass=0,mitigation=0,fail=0;
+    for(const cid in grades){
+      const c = CLAUSES[cid];
+      if(c.tiersApplicable && !c.tiersApplicable.includes(tier)) continue;
+      const v = grades[cid][tier];
+      if(v==='na') na++; else if(v==='pass') pass++; else if(v==='mitigation') mitigation++; else if(v==='fail') fail++;
+    }
+    let overall='Pass';
+    if(fail>0) overall='Fail'; else if(mitigation>0) overall='Pass subject to mitigation';
+    summary[tier] = {na,pass,mitigation,fail,overall};
+  }
+  return summary;
+}
+function gradeLabel(v){ return {pass:'Pass',fail:'Fail',mitigation:'Mitigation',na:'N/A'}[v] || v; }
+
+/* =========================================================================
+   APP STATE & ROUTER
+   ========================================================================= */
+let STATE = { route:'dashboard', groundId:null, inspectionId:null, sectionIdx:0, cache:{}, overridingClause:null };
+
+async function navigate(route, params){
+  STATE.route = route;
+  Object.assign(STATE, params||{});
+  await render();
+  window.scrollTo(0,0);
+}
+
+async function render(){
+  const app = document.getElementById('app');
+  if(!getConfig()){ app.innerHTML = renderSetup(); bindGlobalHandlers(); return; }
+  if(STATE.route==='dashboard') app.innerHTML = await renderDashboard();
+  else if(STATE.route==='ground') app.innerHTML = await renderGround();
+  else if(STATE.route==='inspection') app.innerHTML = await renderInspection();
+  else if(STATE.route==='onsite-summary') app.innerHTML = await renderOnsiteSummary();
+  else if(STATE.route==='approvals') app.innerHTML = await renderApprovals();
+  else if(STATE.route==='notices') app.innerHTML = await renderNotices();
+  else if(STATE.route==='report') app.innerHTML = await renderReport();
+  else if(STATE.route==='settings') app.innerHTML = renderSettings();
+  bindGlobalHandlers();
+}
+
+/* ---------- Setup / Settings ---------- */
+function renderSetup(){
+  return `
+  <div class="setup-wrap">
+    <div class="card">
+      <h2 class="section-title" style="margin-top:0">Connect to KCFL Database</h2>
+      <p style="font-size:13px;color:var(--ink-400);">Enter the shared secret for the KCFL Ground Grading Sheet.</p>
+      <div class="field"><label>Shared Secret</label><input type="text" id="cfg-secret" placeholder="e.g. KCFL007"></div>
+      <button class="btn-primary" style="width:100%;padding:12px;border-radius:8px;" data-save-config>Connect</button>
+      <div id="setup-result" style="margin-top:10px;font-size:12.5px;"></div>
+    </div>
+  </div>`;
+}
+function renderSettings(){
+  const cfg = getConfig() || {};
+  return `
+  <div class="topbar"><div class="brand"><button class="ghost" data-back-dashboard style="padding:6px 10px;">\u2190</button>
+  <h1 style="font-size:14px;">Settings</h1></div></div>
+  <main>
+    <div class="card">
+      <div class="field"><label>Shared Secret</label><input type="text" id="cfg-secret" value="${esc(cfg.secret||'')}"></div>
+      <button class="btn-primary" style="width:100%;padding:12px;border-radius:8px;" data-save-config>Save & Test Connection</button>
+      <div id="setup-result" style="margin-top:10px;font-size:12.5px;"></div>
+    </div>
+    <div class="card">
+      <button class="btn-secondary" style="width:100%;padding:12px;border-radius:8px;" data-sync-now>Sync Now</button>
+    </div>
+  </main>`;
+}
+
+/* ---------- Dashboard (Grounds list) ---------- */
+async function renderDashboard(){
+  const grounds = await Store.listGrounds();
+  const rows = grounds.length ? grounds.map(g=>`
+    <div class="insp-list-item" data-open-ground="${g.id}">
+      <div class="insp-main">
+        <div class="club">${esc(g.clubName||'(unnamed club)')}${g.groundName?' \u2014 '+esc(g.groundName):''}</div>
+        <div class="meta">${g.lastInspectionDate ? 'Last inspected '+fmtDate(g.lastInspectionDate) : 'No inspections yet'} ${g._dirty?'<span class="sync-dot sync-pending"></span>unsynced':''}</div>
+      </div>
+      <div class="tier-badges">${TIERS.map(t=>tierBadge(g['currentAssessment'+tierKey(t)])).join('')}</div>
+    </div>`).join('') : `<div class="empty-state">No grounds yet.<br>Add your first ground to begin.</div>`;
+
+  return `
+  <div class="topbar">
+    <div class="brand"><div class="crest">KC</div><div><h1>KCFL Ground Grading</h1><div class="sub">${SYNC_STATE.online?'<span class="sync-dot sync-ok"></span>Connected':'<span class="sync-dot sync-off"></span>Offline \u2014 showing last synced data'}</div></div></div>
+    <div class="actions">
+      <button class="icon-btn" data-goto-notices>Notices</button>
+      <button class="icon-btn" data-goto-approvals>Approvals</button>
+      <button class="icon-btn" data-goto-settings>\u2699</button>
+    </div>
+  </div>
+  <main>
+    <div class="card"><h2 class="section-title" style="margin-top:0">Grounds</h2>${rows}</div>
+    <button class="big-btn" data-new-ground>+ New Ground</button>
+  </main>`;
+}
+function tierBadge(val){
+  const cls = val==='Fail' ? 'tb-fail' : (val==='Pass subject to mitigation' ? 'tb-mitigation' : (val==='Pass' ? 'tb-pass' : 'tb-none'));
+  const label = val ? val.replace('Pass subject to mitigation','Mitigation') : '\u2014';
+  return `<span class="tier-badge ${cls}">${label}</span>`;
+}
+function tierKey(s){ return {prem:'Prem', nonprem:'NonPrem', vets:'Vets'}[s] || s; }
+
+/* ---------- Ground detail ---------- */
+async function renderGround(){
+  const ground = await Store.getGround(STATE.groundId);
+  if(!ground) return `<div class="topbar"><div class="brand"><button class="ghost" data-back-dashboard>\u2190</button></div></div><main><div class="empty-state">Ground not found.</div></main>`;
+  const inspections = await Store.listInspections(ground.id);
+  const rows = inspections.length ? inspections.map(i=>`
+    <div class="insp-list-item" ${i.status==='draft' ? `data-open-inspection="${i.id}"` : `data-open-report="${i.id}|${ground.id}"`}>
+      <div class="insp-main"><div class="club">${fmtDate(i.facts.visitDate)}</div>
+      <div class="meta">Inspector: ${esc(i.facts.inspector1||'\u2014')}</div></div>
+      <span class="status-pill status-${i.status}">${i.status}</span>
+    </div>`).join('') : `<div class="empty-state">No inspections recorded yet.</div>`;
+
+  return `
+  <div class="topbar"><div class="brand"><button class="ghost" data-back-dashboard style="padding:6px 10px;">\u2190</button>
+  <div><h1 style="font-size:14px;">${esc(ground.clubName||'')}</h1><div class="sub">${esc(ground.groundName||'')}</div></div></div></div>
+  <main>
+    <div class="card">
+      <h2 class="section-title" style="margin-top:0">Ground Details</h2>
+      <div class="field"><label>Club</label><input type="text" data-ground-field="clubName" value="${esc(ground.clubName||'')}"></div>
+      <div class="field"><label>Ground Name</label><input type="text" data-ground-field="groundName" value="${esc(ground.groundName||'')}"></div>
+      <div class="field"><label>Street Address</label><input type="text" data-ground-field="streetAddress" value="${esc(ground.streetAddress||'')}"></div>
+      <div class="field-row">
+        <div class="field"><label>City/Town</label><input type="text" data-ground-field="cityTown" value="${esc(ground.cityTown||'')}"></div>
+        <div class="field"><label>County</label><input type="text" data-ground-field="county" value="${esc(ground.county||'')}"></div>
+        <div class="field"><label>Postcode</label><input type="text" data-ground-field="postcode" value="${esc(ground.postcode||'')}"></div>
+      </div>
+      <div class="field"><label>Ground Owner & Freehold/Leasehold Details</label><textarea data-ground-field="groundOwnerDetails">${esc(ground.groundOwnerDetails||'')}</textarea></div>
+    </div>
+    <button class="big-btn" data-new-inspection="${ground.id}">+ New Inspection</button>
+    <div class="card" style="margin-top:14px;"><h2 class="section-title" style="margin-top:0">Inspection History</h2>${rows}</div>
+  </main>`;
+}
+
+/* ---------- Inspection form ---------- */
+async function loadCurrentInspection(){
+  if(STATE.cache[STATE.inspectionId]) return STATE.cache[STATE.inspectionId];
+  let insp = await Store.getInspection(STATE.inspectionId);
+  if(!insp) insp = { id:STATE.inspectionId, groundId:STATE.groundId, status:'draft', facts:{}, overrides:{}, createdAt:Date.now() };
+  STATE.cache[insp.id] = insp;
+  return insp;
+}
+
+async function renderInspection(){
+  const insp = await loadCurrentInspection();
+  const grades = computeGrades(insp.facts, insp.overrides);
+  const summary = summarise(grades);
+  const section = SECTIONS[STATE.sectionIdx];
+  const visible = !section.showIf || section.showIf(insp.facts);
+  const nav = SECTIONS.map((s,i)=>{
+    if(s.showIf && !s.showIf(insp.facts)) return '';
+    const done = s.fields.some(f=>f.k && insp.facts[f.k]);
+    return `<button data-section="${i}" class="${i===STATE.sectionIdx?'active':''} ${done?'done':''}">${s.title}</button>`;
+  }).join('');
+  const fieldsHtml = visible ? section.fields.map(f=>renderField(f, insp.facts, grades)).join('') : `<p style="color:var(--ink-400);font-size:13px;">Not applicable (no 2nd pitch recorded).</p>`;
+
+  return `
+  <div class="topbar">
+    <div class="brand"><button class="ghost" data-back-ground="${insp.groundId}" style="padding:6px 10px;">\u2190</button>
+      <div><h1 style="font-size:14px;">${esc(insp.facts.clubName||'Inspection')}</h1><div class="sub">${insp._dirty?'<span class="sync-dot sync-pending"></span>syncing\u2026':'<span class="sync-dot sync-ok"></span>synced'}</div></div>
+    </div>
+    <span class="status-pill status-${insp.status}">${insp.status}</span>
+  </div>
+  <main>
+    <div class="scoreboard">
+      ${TIERS.map(t=>`<div class="score-card"><div class="tier">${TIER_LABEL[t]}</div>
+        <div class="overall overall-${summary[t].overall==='Pass'?'pass':summary[t].overall==='Fail'?'fail':'mitigation'}">${summary[t].overall}</div>
+        <div class="score-row"><span>Pass</span><span>${summary[t].pass}</span></div>
+        <div class="score-row"><span>Mitigation</span><span>${summary[t].mitigation}</span></div>
+        <div class="score-row"><span>Fail</span><span>${summary[t].fail}</span></div>
+        <div class="score-row"><span>N/A</span><span>${summary[t].na}</span></div></div>`).join('')}
+    </div>
+    <div class="section-nav">${nav}</div>
+    <div class="card"><h2 class="section-title">${section.title}</h2>${fieldsHtml}</div>
+  </main>
+  <div class="footer-bar">
+    <button class="btn-secondary" data-prev-section>\u2190 Prev</button>
+    ${STATE.sectionIdx < SECTIONS.length-1 ? `<button class="btn-primary" data-next-section>Next \u2192</button>` : `<button class="btn-primary" data-goto-summary>On-site Summary \u2192</button>`}
+  </div>`;
+}
+
+function renderField(f, facts, grades){
+  if(f.clause) return renderClauseCard(f.clause, facts, grades);
+  if(f.showIf && !f.showIf(facts)) return '';
+  const val = facts[f.k] ?? '';
+  let input='';
+  if(f.type==='text'||f.type==='number'||f.type==='date') input = `<input type="${f.type}" data-field="${f.k}" value="${esc(val)}">`;
+  else if(f.type==='textarea') input = `<textarea data-field="${f.k}">${esc(val)}</textarea>`;
+  else if(f.type==='select'){
+    const opts = f.options.map(o=>{ const [ov,ol]=Array.isArray(o)?o:[o,o]; return `<option value="${esc(ov)}" ${val===ov?'selected':''}>${esc(ol)}</option>`; }).join('');
+    input = `<select data-field="${f.k}"><option value="">\u2014 select \u2014</option>${opts}</select>`;
+  } else if(f.type==='yn'){
+    input = `<div class="yn-toggle"><button type="button" class="${val==='yes'?'sel-yes':''}" data-field="${f.k}" data-val="yes">Yes</button><button type="button" class="${val==='no'?'sel-no':''}" data-field="${f.k}" data-val="no">No</button></div>`;
+  }
+  return `<div class="field"><label>${esc(f.label)}${f.unit?` <span class="hint">(${f.unit})</span>`:''}</label>${input}${f.hint?`<span class="hint">${esc(f.hint)}</span>`:''}</div>`;
+}
+
+function renderClauseCard(cid, facts, grades){
+  const c = CLAUSES[cid], g = grades[cid];
+  const applicable = t => !c.tiersApplicable || c.tiersApplicable.includes(t);
+  const badges = TIERS.filter(applicable).map(t=>`<span class="grade-badge grade-${g[t]}">${TIER_LABEL[t]}: ${gradeLabel(g[t])}</span>`).join('');
+  let mitigationHtml='';
+  if(g.mitigationNote){
+    mitigationHtml = `<div class="mitigation-box"><label>Mitigation</label><textarea data-mitigation="${cid}">${esc(facts['_mit_'+cid] ?? g.mitigationNote)}</textarea>
+      <div class="due-row"><span>Due by:</span><input type="date" data-duedate="${cid}" value="${esc(facts['_due_'+cid]||'')}"></div></div>`;
+  }
+  let advisoryHtml = g.advisories ? g.advisories.map(a=>`<div class="advisory-box">\u2139 Advisory (${TIER_LABEL[a.tier]}): ${esc(a.text)}</div>`).join('') : '';
+  return `<div class="clause-card">
+    <div class="clause-head"><div><div class="clause-id">Clause ${cid.replace(/[a-z]+$/,'')}</div><div class="clause-title">${esc(c.title)}</div><div class="clause-req">${esc(c.req)}</div></div></div>
+    <div class="grade-row">${badges}</div>${mitigationHtml}${advisoryHtml}
+    <button class="override-btn" data-override="${cid}">${g._overridden?'Editing manual override':'Manually override grading'}</button>
+    ${STATE.overridingClause===cid ? renderOverridePanel(cid,g) : ''}
+  </div>`;
+}
+function renderOverridePanel(cid, g){
+  const c = CLAUSES[cid];
+  const tiers = TIERS.filter(t=>!c.tiersApplicable || c.tiersApplicable.includes(t));
+  return `<div class="override-panel">
+    ${tiers.map(t=>`<label style="font-size:11.5px;">${TIER_LABEL[t]}</label><select data-override-tier="${cid}|${t}">${['pass','mitigation','fail','na'].map(v=>`<option value="${v}" ${g[t]===v?'selected':''}>${gradeLabel(v)}</option>`).join('')}</select>`).join('')}
+    <label style="font-size:11.5px;">Reason for override</label><textarea data-override-reason="${cid}" placeholder="Why is this being overridden?"></textarea>
+    <button class="btn-primary" style="margin-top:6px;padding:8px;font-size:12px;" data-apply-override="${cid}">Apply Override</button>
+  </div>`;
+}
+
+/* ---------- On-site summary ---------- */
+async function renderOnsiteSummary(){
+  const insp = await loadCurrentInspection();
+  const grades = computeGrades(insp.facts, insp.overrides);
+  const summary = summarise(grades);
+  const notices = buildNotices(grades, insp.facts);
+  return `
+  <div class="topbar"><div class="brand"><button class="ghost" data-back-inspection style="padding:6px 10px;">\u2190</button><h1 style="font-size:14px;">On-site Summary</h1></div></div>
+  <main><div class="print-report">
+    <h2>${esc(insp.facts.clubName||'')} \u2014 ${esc(insp.facts.groundName||'')}</h2>
+    <p style="color:var(--ink-400);font-size:13px;">Visit date: ${fmtDate(insp.facts.visitDate)} &nbsp;\u2022&nbsp; For discussion with club representative on site</p>
+    <table class="summary-table"><tr><th></th>${TIERS.map(t=>`<th>${TIER_LABEL[t]}</th>`).join('')}</tr>
+      <tr><td>N/A</td>${TIERS.map(t=>`<td class="num">${summary[t].na}</td>`).join('')}</tr>
+      <tr><td>Pass</td>${TIERS.map(t=>`<td class="num">${summary[t].pass}</td>`).join('')}</tr>
+      <tr><td>Pass with mitigation</td>${TIERS.map(t=>`<td class="num">${summary[t].mitigation}</td>`).join('')}</tr>
+      <tr><td>Fail</td>${TIERS.map(t=>`<td class="num">${summary[t].fail}</td>`).join('')}</tr>
+      <tr><td><b>Overall</b></td>${TIERS.map(t=>`<td><span class="assessment-tag" style="background:${summary[t].overall==='Pass'?'var(--green-100)':summary[t].overall==='Fail'?'var(--red-100)':'var(--amber-100)'};color:${summary[t].overall==='Pass'?'var(--green-600)':summary[t].overall==='Fail'?'var(--red-600)':'#8a5a10'}">${summary[t].overall}</span></td>`).join('')}</tr>
+    </table>
+    <h3 style="font-size:15px;color:var(--pitch-800);">Improvement Notices / Mitigations</h3>
+    ${notices.length ? notices.map(n=>`<div class="notice-item"><div class="clause">${n.title}</div><div class="text">${esc(n.text)}</div>${n.dueDate?`<div class="row">Due: ${fmtDate(n.dueDate)}</div>`:''}</div>`).join('') : '<p style="font-size:13px;color:var(--ink-400);">None recorded.</p>'}
+  </div></main>
+  <div class="footer-bar no-print">
+    <button class="btn-secondary" onclick="window.print()">Print</button>
+    <button class="btn-primary" data-submit-approval>Submit for Approval</button>
+  </div>`;
+}
+function buildNotices(grades, facts){
+  const notices = [];
+  for(const cid in grades){
+    const g = grades[cid], c = CLAUSES[cid];
+    const hasMitigation = TIERS.some(t=>g[t]==='mitigation');
+    const hasFail = TIERS.some(t=>g[t]==='fail');
+    if(hasMitigation && g.mitigationNote){
+      notices.push({cid, title:`${c.title} \u2014 Mitigation`, type:'mitigation', text: facts['_mit_'+cid] || g.mitigationNote, dueDate: facts['_due_'+cid]||''});
+    } else if(hasFail){
+      notices.push({cid, title:`${c.title} \u2014 Improvement Required`, type:'fail', text:`Does not currently meet the required standard.`, dueDate: facts['_due_'+cid]||''});
+    }
+  }
+  return notices;
+}
+
+/* ---------- Approvals (cross-ground) ---------- */
+async function renderApprovals(){
+  const submitted = await Store.listAllSubmitted();
+  const rows = submitted.length ? submitted.map(i=>`
+    <div class="insp-list-item" data-open-report="${i.id}|${i.groundId}">
+      <div class="insp-main"><div class="club">${esc(i.facts.clubName||'')} \u2014 ${esc(i.facts.groundName||'')}</div><div class="meta">${fmtDate(i.facts.visitDate)}</div></div>
+      <span class="status-pill status-submitted">awaiting approval</span>
+    </div>`).join('') : `<div class="empty-state">Nothing awaiting approval.</div>`;
+  return `<div class="topbar"><div class="brand"><button class="ghost" data-back-dashboard style="padding:6px 10px;">\u2190</button><h1 style="font-size:14px;">Approvals</h1></div></div>
+  <main><div class="card">${rows}</div></main>`;
+}
+
+/* ---------- Notices tracker (cross-ground) ---------- */
+async function renderNotices(){
+  let notices = await Store.listNotices();
+  notices = notices.filter(n=>!n.resolved).sort((a,b)=> (a.dueDate||'9999').localeCompare(b.dueDate||'9999'));
+  const rows = notices.length ? notices.map(n=>`
+    <div class="notice-item">
+      <div class="row"><b>${esc(n.clubName)} \u2014 ${esc(n.groundName)}</b></div>
+      <div class="clause">${esc(n.clauseTitle)}</div>
+      <div class="text">${esc(n.text)}</div>
+      <div class="row">
+        Due: <input type="date" data-notice-due="${n.id}" value="${esc(n.dueDate||'')}">
+        <label style="display:flex;align-items:center;gap:4px;"><input type="checkbox" data-notice-resolved="${n.id}"> Mark resolved</label>
+      </div>
+    </div>`).join('') : `<div class="empty-state">No outstanding notices across any ground.</div>`;
+  return `<div class="topbar"><div class="brand"><button class="ghost" data-back-dashboard style="padding:6px 10px;">\u2190</button><h1 style="font-size:14px;">Outstanding Notices</h1></div></div>
+  <main><div class="card">${rows}</div></main>`;
+}
+
+/* ---------- Final report ---------- */
+async function renderReport(){
+  const insp = await loadCurrentInspection();
+  const grades = computeGrades(insp.facts, insp.overrides);
+  const summary = summarise(grades);
+  const f = insp.facts;
+  return `
+  <div class="topbar"><div class="brand"><button class="ghost" data-back-dashboard style="padding:6px 10px;">\u2190</button><h1 style="font-size:14px;">Ground Grading Report</h1></div>
+  <span class="status-pill status-${insp.status}">${insp.status}</span></div>
+  <main><div class="print-report">
+    <h2>KCFL Ground Grading Report</h2>
+    <table class="kv-table">
+      <tr><td class="k">Club</td><td>${esc(f.clubName)}</td></tr>
+      <tr><td class="k">Date of Visit</td><td>${fmtDate(f.visitDate)}</td></tr>
+      <tr><td class="k">Ground Name</td><td>${esc(f.groundName)}</td></tr>
+      <tr><td class="k">Ground Address</td><td>${esc(f.streetAddress)}, ${esc(f.cityTown)}, ${esc(f.county)} ${esc(f.postcode)}</td></tr>
+      <tr><td class="k">Club Rep at Inspection</td><td>${esc(f.clubRep)}</td></tr>
+      <tr><td class="k">KCL Inspector 1</td><td>${esc(f.inspector1)}</td></tr>
+      <tr><td class="k">KCL Inspector 2</td><td>${esc(f.inspector2)}</td></tr>
+      <tr><td class="k">Background</td><td>${esc(f.background)}</td></tr>
+    </table>
+    <table class="summary-table"><tr><th></th>${TIERS.map(t=>`<th>${TIER_LABEL[t]} League</th>`).join('')}</tr>
+      <tr><td>Criteria N/A</td>${TIERS.map(t=>`<td class="num">${summary[t].na}</td>`).join('')}</tr>
+      <tr><td>Criteria Passed</td>${TIERS.map(t=>`<td class="num">${summary[t].pass}</td>`).join('')}</tr>
+      <tr><td>Pass with Mitigation</td>${TIERS.map(t=>`<td class="num">${summary[t].mitigation}</td>`).join('')}</tr>
+      <tr><td>Criteria Failed</td>${TIERS.map(t=>`<td class="num">${summary[t].fail}</td>`).join('')}</tr>
+      <tr><td><b>Overall Assessment</b></td>${TIERS.map(t=>`<td><b>${summary[t].overall}</b></td>`).join('')}</tr>
+    </table>
+    <h3 style="font-size:15px;">Overall Summary</h3><p style="font-size:13.5px;">${esc(f.overallSummary)||'<em>Not yet completed.</em>'}</p>
+    <table class="kv-table">
+      <tr><td class="k">Inspector</td><td>${esc(f.inspector1)}</td></tr>
+      <tr><td class="k">Checked by (GGO)</td><td>${esc(insp.approvedBy||'')}</td></tr>
+      <tr><td class="k">Status</td><td>${insp.status}</td></tr>
+    </table>
+  </div></main>
+  <div class="footer-bar no-print">
+    <button class="btn-secondary" onclick="window.print()">Print / Save PDF</button>
+    ${insp.status==='submitted' ? `<button class="btn-primary" data-approve>Approve & Finalise</button>` : ''}
+  </div>`;
+}
+
+/* =========================================================================
+   EVENT HANDLING
+   ========================================================================= */
+function bindGlobalHandlers(){
+  const app = document.getElementById('app');
+
+  const saveCfgBtn = app.querySelector('[data-save-config]');
+  if(saveCfgBtn) saveCfgBtn.onclick = async ()=>{
+    const secret = app.querySelector('#cfg-secret').value.trim();
+    setConfig({secret});
+    const resultEl = app.querySelector('#setup-result');
+    resultEl.textContent = 'Testing connection\u2026';
+    try{
+      await Api.listGrounds();
+      resultEl.textContent = '\u2713 Connected successfully.';
+      resultEl.style.color = 'var(--green-600)';
+      setTimeout(()=>navigate('dashboard',{}), 600);
+    }catch(e){
+      resultEl.textContent = '\u2717 Could not connect: ' + e.message;
+      resultEl.style.color = 'var(--red-600)';
+    }
+  };
+  const syncBtn = app.querySelector('[data-sync-now]');
+  if(syncBtn) syncBtn.onclick = async ()=>{
+    showToast('Syncing\u2026');
+    const n = await Store.syncAllDirty();
+    showToast(n>0 ? `Synced ${n} item(s)` : 'Nothing to sync');
+    await render();
+  };
+
+  app.querySelectorAll('[data-goto-settings]').forEach(b=>b.onclick=()=>navigate('settings',{}));
+  app.querySelectorAll('[data-goto-approvals]').forEach(b=>b.onclick=()=>navigate('approvals',{}));
+  app.querySelectorAll('[data-goto-notices]').forEach(b=>b.onclick=()=>navigate('notices',{}));
+  app.querySelectorAll('[data-back-dashboard]').forEach(b=>b.onclick=async ()=>{ await persistCurrent(); await navigate('dashboard',{}); });
+  app.querySelectorAll('[data-back-ground]').forEach(b=>b.onclick=async ()=>{ await persistCurrent(); await navigate('ground',{groundId:b.dataset.backGround}); });
+  app.querySelectorAll('[data-back-inspection]').forEach(b=>b.onclick=()=>navigate('inspection',{}));
+
+  app.querySelectorAll('[data-open-ground]').forEach(b=>b.onclick=()=>navigate('ground',{groundId:b.dataset.openGround}));
+  app.querySelectorAll('[data-open-inspection]').forEach(b=>b.onclick=()=>navigate('inspection',{inspectionId:b.dataset.openInspection, sectionIdx:0}));
+  app.querySelectorAll('[data-open-report]').forEach(b=>b.onclick=()=>{
+    const [id, groundId] = b.dataset.openReport.split('|');
+    navigate('report',{inspectionId:id, groundId});
+  });
+
+  const newGroundBtn = app.querySelector('[data-new-ground]');
+  if(newGroundBtn) newGroundBtn.onclick = async ()=>{
+    const id = uid('g');
+    const ground = { id, clubName:'New Club', groundName:'', streetAddress:'', cityTown:'', county:'', postcode:'', groundOwnerDetails:'', createdAt:Date.now(), updatedAt:Date.now() };
+    await Store.saveGround(ground);
+    await navigate('ground',{groundId:id});
+  };
+  app.querySelectorAll('[data-new-inspection]').forEach(b=>b.onclick=async ()=>{
+    const groundId = b.dataset.newInspection;
+    const ground = await Store.getGround(groundId);
+    const id = uid('i');
+    const insp = { id, groundId, status:'draft', facts:{
+      clubName: ground?.clubName||'', groundName: ground?.groundName||'', streetAddress: ground?.streetAddress||'',
+      cityTown: ground?.cityTown||'', county: ground?.county||'', postcode: ground?.postcode||'', groundOwnerDetails: ground?.groundOwnerDetails||''
+    }, overrides:{}, createdAt:Date.now() };
+    STATE.cache[id] = insp;
+    await navigate('inspection',{groundId, inspectionId:id, sectionIdx:0});
+  });
+
+  app.querySelectorAll('[data-ground-field]').forEach(el=>{
+    el.onchange = async ()=>{
+      const ground = await Store.getGround(STATE.groundId);
+      if(!ground) return;
+      ground[el.dataset.groundField] = el.value;
+      await Store.saveGround(ground);
+      showToast('Saved');
+    };
+  });
+
+  app.querySelectorAll('[data-section]').forEach(b=>b.onclick=async ()=>{ await persistCurrent(); STATE.sectionIdx=parseInt(b.dataset.section); await render(); });
+  const prev = app.querySelector('[data-prev-section]'); if(prev) prev.onclick = async ()=>{ await persistCurrent(); STATE.sectionIdx=Math.max(0,STATE.sectionIdx-1); await render(); };
+  const next = app.querySelector('[data-next-section]'); if(next) next.onclick = async ()=>{ await persistCurrent(); STATE.sectionIdx=Math.min(SECTIONS.length-1,STATE.sectionIdx+1); await render(); };
+  const gotoSummary = app.querySelector('[data-goto-summary]'); if(gotoSummary) gotoSummary.onclick = async ()=>{ await persistCurrent(); await navigate('onsite-summary',{}); };
+
+  app.querySelectorAll('input[data-field], textarea[data-field], select[data-field]').forEach(el=>{
+    el.onchange = async ()=>{
+      const insp = await loadCurrentInspection();
+      insp.facts[el.dataset.field] = el.value;
+      await persistCurrent(true);
+      await render();
+    };
+  });
+  app.querySelectorAll('button[data-field]').forEach(el=>{
+    el.onclick = async ()=>{
+      const insp = await loadCurrentInspection();
+      const k = el.dataset.field, v = el.dataset.val;
+      insp.facts[k] = (insp.facts[k]===v) ? '' : v;
+      await persistCurrent(true);
+      await render();
+    };
+  });
+  app.querySelectorAll('textarea[data-mitigation]').forEach(el=>{
+    el.onchange = async ()=>{ const insp=await loadCurrentInspection(); insp.facts['_mit_'+el.dataset.mitigation]=el.value; await persistCurrent(true); };
+  });
+  app.querySelectorAll('input[data-duedate]').forEach(el=>{
+    el.onchange = async ()=>{ const insp=await loadCurrentInspection(); insp.facts['_due_'+el.dataset.duedate]=el.value; await persistCurrent(true); };
+  });
+
+  app.querySelectorAll('[data-override]').forEach(b=>b.onclick=async ()=>{ STATE.overridingClause = (STATE.overridingClause===b.dataset.override)?null:b.dataset.override; await render(); });
+  app.querySelectorAll('[data-apply-override]').forEach(b=>b.onclick=async ()=>{
+    const cid = b.dataset.applyOverride;
+    const insp = await loadCurrentInspection();
+    const tiers = {};
+    app.querySelectorAll(`[data-override-tier^="${cid}|"]`).forEach(sel=>{ tiers[sel.dataset.overrideTier.split('|')[1]] = sel.value; });
+    const reason = app.querySelector(`[data-override-reason="${cid}"]`)?.value || '';
+    insp.overrides[cid] = { tiers, reason };
+    STATE.overridingClause = null;
+    await persistCurrent(true);
+    await render();
+    showToast('Override applied');
+  });
+
+  const submitBtn = app.querySelector('[data-submit-approval]');
+  if(submitBtn) submitBtn.onclick = async ()=>{
+    const insp = await loadCurrentInspection();
+    insp.status = 'submitted';
+    insp.submittedAt = Date.now();
+    await Store.saveInspection(insp);
+    const grades = computeGrades(insp.facts, insp.overrides);
+    const notices = buildNotices(grades, insp.facts);
+    for(const n of notices){
+      const notice = {
+        id: insp.id+'_'+n.cid, groundId: insp.groundId, inspectionId: insp.id,
+        clauseId: n.cid, clauseTitle: n.title, type: n.type, text: n.text, dueDate: n.dueDate||'',
+        resolved: false, clubName: insp.facts.clubName||'', groundName: insp.facts.groundName||''
+      };
+      await Store.saveNotice(notice);
+    }
+    const ground = await Store.getGround(insp.groundId);
+    if(ground){ ground.lastInspectionDate = insp.facts.visitDate; ground.lastInspectionId = insp.id; await Store.saveGround(ground); }
+    showToast('Submitted for approval');
+    await navigate('ground', {groundId: insp.groundId});
+  };
+
+  const approveBtn = app.querySelector('[data-approve]');
+  if(approveBtn) approveBtn.onclick = async ()=>{
+    const insp = await loadCurrentInspection();
+    insp.status = 'approved';
+    insp.approvedAt = Date.now();
+    insp.approvedBy = insp.facts.inspector1 || 'Ground Grading Officer';
+    await Store.saveInspection(insp);
+    const grades = computeGrades(insp.facts, insp.overrides);
+    const summary = summarise(grades);
+    const ground = await Store.getGround(insp.groundId);
+    if(ground){
+      ground.currentAssessmentPrem = summary.prem.overall;
+      ground.currentAssessmentNonPrem = summary.nonprem.overall;
+      ground.currentAssessmentVets = summary.vets.overall;
+      await Store.saveGround(ground);
+    }
+    showToast('Approved & finalised');
+    await render();
+  };
+
+  app.querySelectorAll('[data-notice-due]').forEach(el=>{
+    el.onchange = async ()=>{
+      const idx = Local.index('notices');
+      const n = idx.find(x=>x.id===el.dataset.noticeDue);
+      if(n){ n.dueDate = el.value; await Store.saveNotice(n); }
+    };
+  });
+  app.querySelectorAll('[data-notice-resolved]').forEach(el=>{
+    el.onchange = async ()=>{
+      const idx = Local.index('notices');
+      const n = idx.find(x=>x.id===el.dataset.noticeResolved);
+      if(n){ n.resolved = el.checked; await Store.saveNotice(n); await render(); }
+    };
+  });
+}
+
+async function persistCurrent(silent){
+  if(!STATE.inspectionId) return;
+  const insp = STATE.cache[STATE.inspectionId];
+  if(!insp) return;
+  await Store.saveInspection(insp);
+  if(!silent) showToast('Saved');
+}
+
+/* =========================================================================
+   BOOT
+   ========================================================================= */
+render();
+</script>
+</body>
+</html>
