@@ -782,8 +782,19 @@ const ANSWER_SUMMARY = {
 };
 function ynLabel(v){ return v==='yes'?'Yes':(v==='no'?'No':'\u2014'); }
 function answerSummary(cid, facts){ const fn = ANSWER_SUMMARY[cid]; return fn ? fn(facts) : '\u2014'; }
+function mitigateFailingTiers(cid, facts, note, reason){
+  const base = CLAUSES[cid].grade(facts);
+  const tiers = {};
+  let changed = false;
+  for(const t of ['prem','nonprem','vets']){
+    if(base[t]==='fail'){ tiers[t] = 'mitigation'; changed = true; }
+    else tiers[t] = base[t];
+  }
+  return changed ? { tiers, reason, mitigationNote: note } : null;
+}
 function computeHistoricalOverrides(facts){
   const overrides = {};
+
   overrides['3.3size'] = { tiers:{prem:'mitigation',nonprem:'mitigation',vets:'mitigation'}, reason:'Not recorded on the old inspection form (seating for 3 officials was not asked).', mitigationNote:'Not specifically inspected, but assumed to comply.' };
   overrides['1.11'] = { tiers:{prem:'mitigation',nonprem:'na',vets:'na'}, reason:'Not recorded on the old inspection form (walkway/stewarding was not asked).', mitigationNote:'Not specifically inspected, but assumed to comply.' };
   if(facts.clubhouseExists==='yes'){
@@ -792,6 +803,32 @@ function computeHistoricalOverrides(facts){
   if(facts.officialsFemaleYouthSeparate!=='yes' && !facts.officialsFemaleYouthDetails){
     overrides['3.3mf'] = { tiers:{prem:'mitigation',nonprem:'mitigation',vets:'mitigation'}, reason:'Not recorded on the old inspection form (any alternative arrangement was not asked).', mitigationNote:'Detail not given but club to provide provision as required.' };
   }
+  if(facts.tenureSecured !== 'yes'){
+    overrides['1.1'] = { tiers:{prem:'mitigation',nonprem:'mitigation',vets:'mitigation'}, reason:'Tenure status not clearly recorded on the old inspection form.', mitigationNote:'Club to confirm at least one season\u2019s tenure secured.' };
+  }
+
+  const carParking = mitigateFailingTiers('1.6', facts, 'Club to provide instructions to away team regarding parking.', 'Below minimum car parking standard on old inspection.');
+  if(carParking) overrides['1.6'] = carParking;
+
+  const barrier = mitigateFailingTiers('1.7', facts, 'A temporary barrier should be erected before all matches.', 'Perimeter barrier did not meet standard on old inspection.');
+  if(barrier) overrides['1.7'] = barrier;
+
+  const techArea = mitigateFailingTiers('1.10', facts, 'Temporary technical area to be marked out and dugouts to be provided in accordance with ground standards.', 'Technical area/dugouts not recorded as compliant on old inspection.');
+  if(techArea) overrides['1.10'] = techArea;
+
+  const sharedSpectatorToilets = mitigateFailingTiers('2.3', facts, 'Toilets should not be used by spectators before and after the game.', 'Changing room toilets recorded as shared with spectators on old inspection.');
+  if(sharedSpectatorToilets) overrides['2.3'] = sharedSpectatorToilets;
+
+  const hotColdChanging = mitigateFailingTiers('3.2', facts, 'Not noted in inspection but assumed to be provided.', 'Hot & cold water not recorded on old inspection.');
+  if(hotColdChanging) overrides['3.2'] = hotColdChanging;
+
+  // Officials WC/basin/hot&cold: mitigate basin/hot&cold only when the WC count itself is fine (WC shortfall stays a hard fail)
+  const offWC = parseFloat(facts.officialsWC)||0;
+  const offBasin = parseFloat(facts.officialsBasin)||0;
+  if(offWC>=1 && !(offBasin>=1 && facts.officialsHotCold==='yes')){
+    overrides['3.3sanitary'] = { tiers:{prem:'mitigation',nonprem:'mitigation',vets:'mitigation'}, reason:'Officials\u2019 basin/hot & cold water not recorded on old inspection (WC count was adequate).', mitigationNote:'Not inspected and assumed to be provided.' };
+  }
+
   return overrides;
 }
 function gradeLabel(v){ return {pass:'Pass',fail:'Fail',mitigation:'Mitigation',na:'N/A'}[v] || v; }
