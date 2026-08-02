@@ -1537,7 +1537,7 @@ async function renderGroundDedup(){
       ${group.map((g,idx)=>`
         <div style="border:1.5px solid var(--chalk-200);border-radius:8px;padding:10px;margin-bottom:8px;">
           <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;">
-            <input type="checkbox" ${idx===0?'checked disabled':'checked'} data-dedup-include="${gi}|${idx}">
+            <input type="checkbox" checked data-dedup-include="${gi}|${idx}">
             <input type="radio" name="primary-${gi}" value="${idx}" ${idx===0?'checked':''} data-dedup-primary="${gi}">
             <span>
               <b>${esc(g.clubName||'')}${g.groundName?' \u2014 '+esc(g.groundName):''}</b><br>
